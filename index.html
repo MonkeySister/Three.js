@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    #c {
+      width: 300px;
+      height: 300px;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="c"></canvas>
+  <script src="./three.js"></script>
+  <script>
+    'use strict';
+    function main() {
+      //1.获取canvas标签
+      const canvas = document.querySelector('#c');
+      //2.将画布传递给three.js用来渲染
+      const renderer = new THREE.WebGLRenderer({
+        canvas
+      });
+      //3.设置相机
+      const fov = 75;
+      const aspect = 2;
+      const near = 0.1;
+      const far = 1000;
+      const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+      //将相机沿着Z轴移动5个单位的距离；
+      camera.position.z = 2;
+
+      //4.设置一个场景
+      const scene = new THREE.Scene();
+      //为场景增加一个光源
+      {
+        //光的颜色
+        const color = 0xFF0000;
+        //光的强度
+        const intensity = 1;
+        //
+        const light = new THREE.DirectionalLight(color, intensity);
+        //光的位置
+        light.position.set(-1, 2, 4);
+        //将光追加到场景中
+        scene.add(light);
+      }
+
+      //5.创建物体，这里创建一个正方体
+      const boxWidth = 1;
+      const boxHeight = 1;
+      const boxDepth = 1;
+      const boxgeometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+
+      //6.创建物体的材质
+      const material = new THREE.MeshBasicMaterial({
+        color: 0x44aa88,
+      })
+
+      //7.创建一个网格
+      const cube = new THREE.Mesh(boxgeometry, material);
+
+      //8.将网格追加到场景中
+      scene.add(cube);
+
+      //9.将场景渲染到相机中
+      //将画布的像素数与css大小设置为相同
+      function resizeRendererToDisplaySize(renderer) {
+        const canvas = renderer.domElement;
+        //设备像素
+        const pixelRatio = window.devicePixelRatio;
+        const width = canvas.clientWidth * pixelRatio | 0;
+        const height = canvas.clientHeight * pixelRatio | 0;
+        const needResize = canvas.width !== width || canvas.height !== height;
+        if (needResize) {
+          renderer.setSize(width, height, false);
+        }
+        return needResize;
+      }
+
+      function render(time) {
+        time *= 0.001;
+        if (resizeRendererToDisplaySize(renderer)) {
+          //更新渲染循环，根据窗口的尺寸大小来调节画布
+          const canvas = renderer.domElement;
+          camera.aspect = canvas.clientWidth / canvas.clientHeight;
+          camera.updateProjectionMatrix();
+        }
+
+        cube.rotation.x = time;
+        cube.rotation.y = time;
+
+        renderer.render(scene, camera);
+
+        requestAnimationFrame(render);
+      }
+      requestAnimationFrame(render);
+    }
+    main();
+  </script>
+</body>
+
+</html>
